@@ -29,9 +29,9 @@ app.use(cors({
 }));
 
 // app.options('*', cors())
-app.options('/*splat', cors({
-     origin: process.env.CLIENT_URL,
-    credentials: true,
+app.options('*', cors({
+  origin: process.env.CLIENT_URL,
+  credentials: true,
 }));
 
 
