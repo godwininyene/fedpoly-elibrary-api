@@ -20,27 +20,27 @@ dotenv.config({ path: resolve(__dirname, '../.env') });
 
 // ─── Admin Credentials (edit before running) ──────────────────────────────────
 const ADMIN = {
-  fullName:    'Head Librarian',
-  email:       'admin@fedpoly.edu.ng',
-  password:    'Admin@FPNO2026',  
-  role:        'librarian_admin',
-  department:  'Library Services',
+  fullName: 'Head Librarian',
+  email: 'admin@fedpoly.edu.ng',
+  password: 'Admin@FPNO2026',
+  role: 'librarian_admin',
+  department: 'Library Services',
 };
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Inline schema to avoid circular import issues when running as a standalone script
 const userSchema = new mongoose.Schema(
   {
-    fullName:     { type: String, required: true, trim: true },
-    email:        { type: String, unique: true, lowercase: true, trim: true },
+    fullName: { type: String, required: true, trim: true },
+    email: { type: String, unique: true, lowercase: true, trim: true },
     matricNumber: { type: String, unique: true, sparse: true },
     passwordHash: { type: String, required: true },
-    role:         { type: String, enum: ['student', 'librarian_admin'], default: 'student' },
-    department:   { type: String },
-    level:        { type: String, default: '' },
-    avatar:       { cloudUrl: { type: String, default: '' }, publicId: { type: String, default: '' } },
-    isActive:     { type: Boolean, default: true },
-    lastLogin:    { type: Date },
+    role: { type: String, enum: ['student', 'librarian_admin'], default: 'student' },
+    department: { type: String },
+    level: { type: String, default: '' },
+    avatar: { cloudUrl: { type: String, default: '' }, publicId: { type: String, default: '' } },
+    isActive: { type: Boolean, default: true },
+    lastLogin: { type: Date },
   },
   { timestamps: true }
 );
@@ -51,12 +51,26 @@ const User = mongoose.models.User || mongoose.model('User', userSchema);
 const seedAdmin = async () => {
   try {
     // 1. Validate environment
-    if (!process.env.DATABASE.replace('<PASSWORD>', process.env.DATABASE_PASSWORD)) {
-      throw new Error('MONGO_URI is not defined in your .env file.');
+    // if (!process.env.DATABASE.replace('<PASSWORD>', process.env.DATABASE_PASSWORD)
+    //   || !process.env.DD_LOCAL
+    // ) {
+    //   throw new Error('MONGO_URI is not defined in your .env file.');
+    // }
+
+    let DB;
+
+
+    if (process.env.NODE_ENV === 'development') {
+      DB = process.env.DB_LOCAL;
+    } else if (process.env.NODE_ENV === 'production') {
+      DB = process.env.DB_LOCAL;
+      // DB = process.env.DATABASE.replace('<PASSWORD>', process.env.DATABASE_PASSWORD);
+      console.log('CONNECTION STRING', DB);
+
     }
 
     console.log('\n🔌 Connecting to MongoDB...');
-    await mongoose.connect(process.env.DATABASE.replace('<PASSWORD>', process.env.DATABASE_PASSWORD), {
+    await mongoose.connect(DB, {
       serverSelectionTimeoutMS: 8000,
     });
     console.log('✅ Connected to MongoDB.\n');
@@ -90,12 +104,12 @@ const seedAdmin = async () => {
 
     // 5. Create the admin document
     const admin = await User.create({
-      fullName:    ADMIN.fullName,
-      email:       ADMIN.email.toLowerCase(),
+      fullName: ADMIN.fullName,
+      email: ADMIN.email.toLowerCase(),
       passwordHash,
-      role:        ADMIN.role,
-      department:  ADMIN.department,
-      isActive:    true,
+      role: ADMIN.role,
+      department: ADMIN.department,
+      isActive: true,
     });
 
     // 6. Success output

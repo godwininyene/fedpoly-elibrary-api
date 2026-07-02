@@ -140,6 +140,7 @@ export const createResource = async (req, res, next) => {
       pages, isbn, edition, publisher,
     } = req.body;
 
+
     const slug = `${Date.now()}_${title
       .replace(/\s+/g, '_')
       .replace(/[^a-zA-Z0-9_-]/g, '')
