@@ -28,6 +28,9 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
+//trust proxy
+app.set('trust proxy', 1);
+
 // Global rate limiter — 200 requests per 15 minutes per IP
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
