@@ -6,9 +6,9 @@ import {
   createResource,
   updateResource,
   deleteResource,
-} from '../controllers/resourceController';
-import { protect, authorize } from '../middleware/authMiddleware';
-import { uploadPDF, handleUploadError } from '../middleware/uploadMiddleware';
+} from '../controllers/resourceController.js';
+import { protect, authorize } from '../middleware/authMiddleware.js';
+import { uploadPDF, handleUploadError } from '../middleware/uploadMiddleware.js';
 
 const router = Router();
 
