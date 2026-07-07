@@ -5,6 +5,12 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 import connectDB from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
 import resourceRoutes from './routes/resourceRoutes.js';
@@ -58,6 +64,26 @@ const authLimiter = rateLimit({
 // ─── Body Parsers ─────────────────────────────────────────────────────────────
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+
+// ─── Local Static File Serving (development only) ─────────────────────────────
+if (process.env.NODE_ENV !== 'production') {
+  const uploadsPath = path.join(__dirname, 'uploads');
+
+  // Serve /uploads/* as static files
+  // In production, Cloudinary handles all file delivery — this block is skipped
+  app.use('/uploads', (req, res, next) => {
+    // If ?download=1 is present, force Content-Disposition: attachment
+    if (req.query.download === '1') {
+      const filename = path.basename(req.path);
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    }
+    next();
+  }, express.static(uploadsPath));
+
+  console.log(`[Dev] Local uploads served at /uploads from ${uploadsPath}`);
+}
+
+
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));

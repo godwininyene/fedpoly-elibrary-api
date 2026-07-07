@@ -1,5 +1,6 @@
 import User from '../models/User.js';
 import { uploadImageToCloudinary, deleteFromCloudinary } from '../services/cloudinaryService.js';
+import { uploadAvatar, deleteFile } from '../services/storageService.js';
 import ApiError from '../utils/ApiError.js';
 
 /**
@@ -35,20 +36,25 @@ export const updateProfile = async (req, res, next) => {
 /**
  * PUT /api/users/me/avatar
  */
+// Replace the updateAvatar function only:
+
 export const updateAvatar = async (req, res, next) => {
   try {
     if (!req.file) throw new ApiError(400, 'Image file is required.');
 
-    // Delete old avatar from Cloudinary if it exists
+    // Delete old avatar if it exists
     if (req.user.avatar?.publicId) {
-      await deleteFromCloudinary(req.user.avatar.publicId, 'image').catch(() => {});
+      await deleteFile(req.user.avatar.publicId).catch(() => {});
     }
 
-    const result = await uploadImageToCloudinary(req.file.buffer);
+    const { cloudUrl, publicId } = await uploadAvatar(
+      req.file.buffer,
+      req.user._id.toString()
+    );
 
     const user = await User.findByIdAndUpdate(
       req.user._id,
-      { $set: { avatar: { cloudUrl: result.secure_url, publicId: result.public_id } } },
+      { $set: { avatar: { cloudUrl, publicId } } },
       { new: true }
     ).select('-passwordHash');
 

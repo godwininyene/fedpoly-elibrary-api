@@ -2,13 +2,13 @@ import { Router } from 'express';
 import {
   getResources,
   getResourceById,
-  getDownloadUrl,
+  getDownloadUrlHandler,
   createResource,
   updateResource,
   deleteResource,
-} from '../controllers/resourceController.js';
-import { protect, authorize } from '../middleware/authMiddleware.js';
-import { uploadPDF, handleUploadError } from '../middleware/uploadMiddleware.js';
+} from '../controllers/resourceController';
+import { protect, authorize } from '../middleware/authMiddleware';
+import { uploadPDF, handleUploadError } from '../middleware/uploadMiddleware';
 
 const router = Router();
 
@@ -17,7 +17,7 @@ router.use(protect);
 
 router.get('/', getResources);
 router.get('/:id', getResourceById);
-router.get('/:id/download', getDownloadUrl);
+router.get('/:id/download', getDownloadUrlHandler);
 
 // Admin-only routes
 router.post(
